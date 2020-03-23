@@ -1,0 +1,135 @@
+\documentclass{article}
+\usepackage[a4paper, total={6in, 9in}]{geometry}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{listings}
+
+
+\renewcommand{\theenumi}{\alph{enumi}}
+
+\title{DS-GA 1008: Deep Learning - Homework 1 (Spring 2020)}
+\author{Alfred Rajakumar}
+%\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Problem - 1 Backpropagation:}
+\subsection{Affine Module:}
+Let  $\textbf{\textit{x}}=\begin{bmatrix}x_{1}\\x_{2}\end{bmatrix}\in\mathbb{R}^{2}$, affine transformation $\textbf{\textit{W}}=\begin{bmatrix}w_{11}&w_{12}\\w_{21}&w_{22}\end{bmatrix}\in\mathbb{R}^{2\times 2}$ and $\textbf{\textit{b}}=\begin{bmatrix}b_{1}\\b_{2}\end{bmatrix}\in\mathbb{R}^{2}$. Now, the output $\textbf{\textit{y}}=\begin{bmatrix}y_{1}\\y_{2}\end{bmatrix}\in\mathbb{R}^{2}$ is given by:
+
+\begin{equation}
+    \textbf{\textit{y}} = \textbf{\textit{W}}\textbf{\textit{x}} + \textbf{\textit{b}}
+\end{equation}
+
+
+\begin{enumerate}
+    \item   \begin{equation}
+                \begin{split}
+                    \frac{\partial C}{\partial \textbf{\textit{W}}}&=\frac{\partial C}{\partial \textbf{\textit{y}}}\frac{\partial \textbf{\textit{y}}}{\partial \textbf{\textit{W}}}\\
+                    \implies\begin{bmatrix}
+                                \frac{\partial C}{\partial w_{11}}&\frac{\partial C}{\partial w_{12}}\\
+                                \frac{\partial C}{\partial w_{21}}&\frac{\partial C}{\partial w_{22}}
+                             \end{bmatrix}
+                             &=
+                             \begin{bmatrix}
+                                \frac{\partial C}{\partial y_{1}}&\frac{\partial C}{\partial y_{2}}
+                            \end{bmatrix}
+                            \begin{bmatrix}
+                                \begin{bmatrix}
+                                    \frac{\partial y_{1}}{\partial w_{11}}&\frac{\partial y_{1}}{\partial w_{12}}\\
+                                    \frac{\partial y_{1}}{\partial w_{21}}&\frac{\partial y_{1}}{\partial w_{22}}
+                                \end{bmatrix},
+                                \begin{bmatrix}
+                                    \frac{\partial y_{2}}{\partial w_{11}}&\frac{\partial y_{2}}{\partial w_{12}}\\
+                                    \frac{\partial y_{2}}{\partial w_{21}}&\frac{\partial y_{2}}{\partial w_{22}}
+                                \end{bmatrix}
+                            \end{bmatrix}\\
+                            &= \begin{bmatrix}
+                                \frac{\partial C}{\partial y_{1}}&\frac{\partial C}{\partial y_{2}}
+                            \end{bmatrix}
+                            \begin{bmatrix}
+                                \begin{bmatrix}
+                                    x_{1}&x_{2}\\
+                                    0&0
+                                \end{bmatrix},
+                                \begin{bmatrix}
+                                    0&0\\
+                                    x_{1}&x_{2}
+                                \end{bmatrix}
+                            \end{bmatrix}\\
+            \therefore \frac{\partial C}{\partial \textbf{\textit{W}}}&= \begin{bmatrix}
+                                    x_{1}\frac{\partial C}{\partial y_{1}}&x_{2}\frac{\partial C}{\partial y_{1}}\\
+                                    x_{1}\frac{\partial C}{\partial y_{2}}&x_{2}\frac{\partial C}{\partial y_{2}}
+                                \end{bmatrix}
+                \end{split}
+            \end{equation}\label{dcdw}
+            
+            Similarly,
+            \begin{equation}
+                \begin{split}
+                    \frac{\partial C}{\partial \textbf{\textit{b}}}&=\frac{\partial C}{\partial \textbf{\textit{y}}}\frac{\partial \textbf{\textit{y}}}{\partial \textbf{\textit{b}}}\\
+                    \implies\begin{bmatrix}
+                                \frac{\partial C}{\partial b_{1}}\\
+                                \frac{\partial C}{\partial b_{2}}
+                             \end{bmatrix}
+                             &=
+                             \begin{bmatrix}
+                                \frac{\partial C}{\partial y_{1}}&\frac{\partial C}{\partial y_{2}}
+                            \end{bmatrix}
+                            \begin{bmatrix}
+                                \frac{\partial y_{1}}{\partial b_{1}}&\frac{\partial y_{2}}{\partial b_{1}}\\
+                                \frac{\partial y_{1}}{\partial b_{2}}&\frac{\partial y_{2}}{\partial b_{2}}
+                            \end{bmatrix}\\
+                            &=
+                             \begin{bmatrix}
+                                \frac{\partial C}{\partial y_{1}}&\frac{\partial C}{\partial y_{2}}
+                            \end{bmatrix}
+                            \begin{bmatrix}
+                                1&0\\
+                                0&1
+                            \end{bmatrix}\\
+            \therefore\frac{\partial C}{\partial \textbf{\textit{b}}}&=
+                            \begin{bmatrix}
+                                \frac{\partial C}{\partial y_{1}}\\
+                                \frac{\partial C}{\partial y_{2}}
+                            \end{bmatrix} = \frac{\partial C}{\partial \textbf{\textit{y}}}
+                \end{split}
+            \end{equation}\label{dcdb}
+    \item Now, $C_{2}(\textbf{\textit{y}})=3C(\textbf{\textit{y}})$. So, in this case,
+    \begin{equation}
+        \frac{\partial C_{2}}{\partial \textbf{\textit{W}}}=\frac{\partial C}{\partial C_{2}}\frac{\partial C}{\partial \textbf{\textit{W}}}=3\frac{\partial C}{\partial \textbf{\textit{W}}}
+    \end{equation}
+    %\eqref{dcdw}
+     Similarly,     \begin{equation}
+        \frac{\partial C_{2}}{\partial \textbf{\textit{b}}}=\frac{\partial C}{\partial C_{2}}\frac{\partial C}{\partial \textbf{\textit{b}}}=3\frac{\partial C}{\partial \textbf{\textit{b}}}
+    \end{equation}
+    where $\frac{\partial C}{\partial \textbf{\textit{W}}}$ and $\frac{\partial C}{\partial \textbf{\textit{b}}}$ are same as given in eqns. (2) and (3) respectively.%\eqref{dcdb}
+\end{enumerate}
+
+\subsection{Softmax Module:}
+
+We have, $\textbf{\textit{y}}=softmax_{\beta}(\textbf{\textit{x}})$, i.e. $y_{k}=\frac{\exp(\beta x_{k})}{\sum_{n}\exp(\beta x_{n})}$, where $\sum_{k}y_{k}=1$, $y_{k}\geq 0$ and $\textbf{\textit{x}}\in \mathbb{R}^{k}$
+
+Differentiating $y_{i}$ w.r.t. each component of $\textbf{\textit{x}}$, gives,
+
+\begin{equation}
+\begin{split}
+    \frac{\partial y_{i}}{\partial x_{j}}&=
+    \begin{cases}
+        \frac{\big[\sum_{n}\exp(\beta x_{n})\big]\beta \exp(\beta x_{i})-\beta\exp(\beta x_{i})\exp(\beta x_{i})}{\big[\sum_{n}\exp(\beta x_{n})\big]^{2}}, &\text{when }i=j\\
+        \frac{\big[\sum_{n}\exp(\beta x_{n})\big]0-\beta\exp(\beta x_{i})\exp(\beta x_{j})}{\big[\sum_{n}\exp(\beta x_{n})\big]^{2}}, &\text{when }i\neq j
+    \end{cases}\\
+    \implies\frac{\partial y_{i}}{\partial x_{j}}&=
+    \begin{cases}
+        \frac{\beta \sum_{i\neq n}\exp(\beta(x_{i}+x_{n}))}{\big[\sum_{n}\exp(\beta x_{n})\big]^{2}}, &\text{when }i=j\\
+        \frac{-\beta\exp(\beta x_{i})\exp(\beta x_{j})}{\big[\sum_{n}\exp(\beta x_{n})\big]^{2}}, &\text{when }i\neq j
+    \end{cases}
+\end{split}
+\end{equation}
+
+
+\end{document}

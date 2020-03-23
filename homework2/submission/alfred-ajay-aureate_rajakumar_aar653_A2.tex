@@ -1,0 +1,110 @@
+\documentclass{article}
+\usepackage[a4paper, total={6in, 9in}]{geometry}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{listings}
+
+
+\renewcommand{\theenumi}{\alph{enumi}}
+\def\lc{\left\lfloor}   
+\def\rc{\right\rfloor}
+
+
+\title{DS-GA 1008: Deep Learning - Homework 2 (Spring 2020)}
+\author{Alfred Rajakumar}
+%\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Problem - 1 Fundamentals:}
+\subsection{Convolution:}
+
+Here, 
+\begin{equation}
+    \textbf{A}_{5\times 5} = \begin{bmatrix}
+        4&5&2&2&1\\
+        3&3&2&2&4\\
+        4&3&4&1&1\\
+        5&1&4&1&2\\
+        5&1&3&1&4
+    \end{bmatrix}\text{ and }
+    \textbf{B}_{3\times 3} = \begin{bmatrix}
+        4&3&3\\
+        5&5&5\\
+        2&4&3\\
+    \end{bmatrix},
+\end{equation}
+
+
+\begin{enumerate}
+    \item The dimension of the output on forward propagation is: $3\times 3$
+    \item General formula for output width is: $O=\lc\frac{I+2P-(K-1)-1}{S}+1\rc$
+    \item On forward propagating, we get,
+    \begin{equation}
+        \textbf{C}_{3\times 3} = \begin{bmatrix}
+            109&92&72\\
+            108&85&74\\
+            110&74&79\\
+        \end{bmatrix}
+    \end{equation}
+    \item We have $\frac{\partial E}{\partial C_{ij}}=1$, and by applying chain rule, we could also get,
+\begin{equation}
+\begin{split}
+    \frac{\partial E}{\partial A_{i,j}}&=
+    \begin{cases}
+        \frac{\partial E}{\partial C_{k,l}}B_{i-k+1,j-l+1}, &\text{when }1\leq i-k+1\leq 3 \text{ and }1\leq j-l+1\leq 3\\
+        0, &\text{when } (i-k+1<1 \text{ or }i-k+1>3) \text{ and }(j-l+1<1 \text{ or }j-l+1>3)  \\
+    \end{cases}\\
+    \implies \frac{\partial E}{\partial A_{i,j}}&= \begin{bmatrix}
+            4&7&10&6&3\\
+            9&17&25&16&8\\
+            11&23&34&23&11\\
+            7&16&24&17&8\\
+            2&6&9&7&3\\
+        \end{bmatrix}
+\end{split}
+\end{equation}
+\end{enumerate}
+
+
+
+\subsection{Pooling:}
+
+\begin{enumerate}
+    \item The \textit{torch.nn} modules for 2D pooling are: 
+    \begin{enumerate}
+        \item \textbf{\textit{MaxPool2d}}: Applies a 2D max pooling over an input signal composed of several input planes
+        \item \textbf{\textit{AvgPool2d}}: Applies a 2D average pooling over an input signal composed of several input planes
+        \item \textbf{\textit{FractionalMaxPool2d}}: Applies a 2D fractional max pooling over an input signal composed of several input planes
+        \item \textbf{\textit{LPPool2d}}: Applies a 2D power-averaging over an input signal composed of several input planes. On each window, the function computed is: $$f(X)=\sqrt[\leftroot{-2}\uproot{2}p]{\sum_{x\in X}x^{p}}$$
+        \item \textbf{\textit{AdaptiveMaxPool2d}}: Applies a 2D adaptive max pooling over an input signal composed of several input planes
+        \item \textbf{\textit{AdaptiveAvgPool2d}}: Applies a 2D adaptive average pooling over an input signal composed of several input planes
+    \end{enumerate}
+    \item We know that $X^{k}\in \mathbb{R}^{H_{in}\times W_{in}}$ and $Y^{k}\in \mathbb{R}^{H_{out}\times W_{out}}$. So,
+    \begin{enumerate}
+        \item Max Pooling: $$Y_{i,j,max}^{k}=\max_{(s,t)\in S_{i,j}^{k}}X_{s,t}^{k}$$
+        \item Average Pooling: $$Y_{i,j,avg}^{k}=\frac{1}{L}\sum_{(s,t)\in S_{i,j}^{k}}X_{s,t}^{k}$$ where $L=\textit{length}(S_{i,j}^{k})$
+        \item LP-Pooling: $$Y_{i,j,p,lpp}^{k}=\sqrt[\leftroot{-2}\uproot{2}p]{\sum_{(s,t)\in S_{i,j}^{k}}\Big(X_{s,t}^{k}\Big)^{p}}$$
+    \end{enumerate}
+    \item On applying max-pooling  on $\textbf{C}$, we get,
+    \begin{equation}
+        MaxPool2d\big(\textbf{C}_{3\times 3}\big) = \begin{bmatrix}
+            109&92\\
+            110&85\\
+        \end{bmatrix}
+    \end{equation}
+    \item \begin{enumerate}
+            \item When $p=1$, we have LP-Pooling = (L x Average Pooling) as shown below: $$Y_{i,j,1,lpp}^{k}=\Bigg(\sqrt[\leftroot{-2}\uproot{2}p]{\sum_{(s,t)\in S_{i,j}^{k}}\Big(X_{s,t}^{k}\Big)^{p}}\Bigg)_{p=1}=\sum_{(s,t)\in S_{i,j}^{k}}X_{s,t}^{k}=LY_{i,j,avg}^{k}$$
+            \item When $p\xrightarrow{}\infty$, we have LP-Pooling = Max Pooling as shown below: $$\lim_{p\xrightarrow{}\infty}Y_{i,j,p,lpp}^{k}=\lim_{p\xrightarrow{}\infty}\Bigg(\sqrt[\leftroot{-2}\uproot{2}p]{\sum_{(s,t)\in S_{i,j}^{k}}\Big(X_{s,t}^{k}\Big)^{p}}\Bigg)=Y_{i,j,max}^{k}$$
+        \end{enumerate}
+\end{enumerate}
+
+
+
+
+
+\end{document}
